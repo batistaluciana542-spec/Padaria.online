@@ -1,372 +1,236 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Padaria Artesanal - Pedidos & Gestão Online</title>
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Supabase JS v2 Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <!-- Google Fonts Poppins & FontAwesome Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <style>
-    * {
-      font-family: 'Poppins', sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-    
-    body {
-      background-color: #0f172a;
-      color: #f8fafc;
-      min-height: 100vh;
-      padding-bottom: 110px;
-    }
-
-    /* Background Gradients */
-    .bg-gradient-main {
-      background: radial-gradient(circle at 10% 10%, rgba(124, 58, 237, 0.22) 0%, transparent 40%),
-                  radial-gradient(circle at 90% 90%, rgba(244, 63, 94, 0.18) 0%, transparent 40%),
-                  #0f172a;
-    }
-
-    /* Glassmorphism Surface */
-    .glass-card {
-      background: rgba(30, 41, 59, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* Pulsing Status Indicators */
-    .pulse-green {
-      box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
-      animation: pulse-green 2s infinite;
-    }
-    @keyframes pulse-green {
-      0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
-      70% { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
-    }
-
-    .pulse-red {
-      box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7);
-      animation: pulse-red 2s infinite;
-    }
-    @keyframes pulse-red {
-      0% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7); }
-      70% { box-shadow: 0 0 0 8px rgba(248, 113, 113, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); }
-    }
-
-    /* Custom Scrollbar */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    /* Touch target optimizations */
-    .btn-touch {
-      min-height: 48px;
-      touch-action: manipulation;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padaria Artesanal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
-<body class="bg-gradient-main text-slate-100">
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-24">
 
-  <!-- Toast Notifications Container -->
-  <div id="toast-container" class="fixed top-4 right-4 left-4 z-50 flex flex-col gap-2 pointer-events-none max-w-md mx-auto"></div>
-
-  <!-- Header -->
-  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-white/10 px-4 py-3">
-    <div class="max-w-5xl mx-auto flex items-center justify-between gap-2">
-      <!-- Logo & Connection Status -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-purple-600/30 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl font-bold">
-          🥖
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 text-amber-400">
+                <i class="fa-solid fa-bread-slice text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-base leading-tight">Padaria Artesanal</h1>
+                <div class="flex items-center space-x-1.5 mt-0.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs text-emerald-400 font-medium">Online (Modo Local)</span>
+                </div>
+            </div>
         </div>
-        <div>
-          <h1 class="font-bold text-base leading-tight">Padaria Artesanal</h1>
-          <button onclick="openDiagnosticsModal()" class="flex items-center gap-1.5 text-xs font-medium hover:underline focus:outline-none">
-            <span id="sync-dot" class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
-            <span id="sync-status-text" class="text-slate-300">Conectando...</span>
-            <i class="fa-solid fa-circle-info text-[10px] text-purple-400 ml-0.5"></i>
-          </button>
+        <div class="flex items-center space-x-2">
+            <button onclick="abrirAdmin()" class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-amber-400 border border-slate-700 active:scale-95 transition">
+                <i class="fa-solid fa-key"></i>
+            </button>
+            <button onclick="abrirCarrinho()" class="relative w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-600/30 active:scale-95 transition">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span id="cart-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-slate-900 hidden">0</span>
+            </button>
         </div>
-      </div>
+    </header>
 
-      <!-- Action Buttons -->
-      <div class="flex items-center gap-2">
-        <button id="dev-toggle-btn" onclick="openPinModal()" class="h-10 px-3 rounded-xl bg-slate-800 border border-white/10 text-amber-400 flex items-center gap-2 text-xs font-semibold hover:bg-slate-700 transition active:scale-95 btn-touch">
-          <i class="fa-solid fa-key"></i>
-          <span class="hidden sm:inline">Modo Dev</span>
-        </button>
-
-        <button onclick="openCartModal()" class="relative h-10 w-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg font-semibold hover:bg-purple-500 transition active:scale-95 shadow-lg shadow-purple-600/30 btn-touch">
-          <i class="fa-solid fa-cart-shopping"></i>
-          <span id="cart-badge" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900">0</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Developer Mode Active Banner -->
-  <div id="dev-mode-bar" class="hidden bg-amber-500/20 border-b border-amber-500/30 px-4 py-2.5">
-    <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-2 text-amber-300 text-xs font-semibold">
-        <i class="fa-solid fa-shield-halved text-amber-400 text-base"></i>
-        <span>MODO DESENVOLVEDOR ATIVO (PIN 1943)</span>
-      </div>
-      <div class="flex items-center gap-2 w-full sm:w-auto">
-        <button onclick="openProductModal()" class="flex-1 sm:flex-none h-10 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 shadow-md shadow-emerald-600/30 btn-touch">
-          <i class="fa-solid fa-plus text-sm"></i>
-          <span>+ NOVO PRODUTO</span>
-        </button>
-        <button onclick="testSupabaseConnection(true)" class="h-10 px-3 bg-slate-800 border border-amber-500/30 text-amber-300 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 btn-touch" title="Testar Banco">
-          <i class="fa-solid fa-rotate"></i>
-          <span class="hidden sm:inline">Testar Banco</span>
-        </button>
-        <button onclick="disableDevMode()" class="h-10 px-3 bg-rose-600/30 text-rose-300 hover:bg-rose-600/40 text-xs font-semibold rounded-lg flex items-center justify-center gap-1 btn-touch">
-          <i class="fa-solid fa-xmark"></i>
-          <span class="hidden sm:inline">Sair</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content Container -->
-  <main class="max-w-5xl mx-auto px-4 pt-4">
-
-    <!-- Category Selector -->
-    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-2 mb-4">
-      <button onclick="filterCategory('todos', this)" class="cat-btn active px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition bg-purple-600 text-white border border-purple-500 shadow-md shadow-purple-600/20 btn-touch">
-        Todos
-      </button>
-      <button onclick="filterCategory('Paes', this)" class="cat-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition bg-slate-800 text-slate-300 border border-white/10 hover:border-white/20 btn-touch">
-        🥖 Pães
-      </button>
-      <button onclick="filterCategory('Doces', this)" class="cat-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition bg-slate-800 text-slate-300 border border-white/10 hover:border-white/20 btn-touch">
-        🍰 Doces & Bolos
-      </button>
-      <button onclick="filterCategory('Salgados', this)" class="cat-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition bg-slate-800 text-slate-300 border border-white/10 hover:border-white/20 btn-touch">
-        🥐 Salgados
-      </button>
-      <button onclick="filterCategory('Bebidas', this)" class="cat-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition bg-slate-800 text-slate-300 border border-white/10 hover:border-white/20 btn-touch">
-        ☕ Bebidas
-      </button>
+    <!-- Categories -->
+    <div class="px-4 py-4 overflow-x-auto no-scrollbar">
+        <div class="flex space-x-2 min-w-max" id="category-filters">
+            <button onclick="filtrar('todos')" class="cat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-violet-600 text-white transition shadow-sm">Todos</button>
+            <button onclick="filtrar('paes')" class="cat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition">Pães</button>
+            <button onclick="filtrar('doces')" class="cat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition">Doces & Bolos</button>
+            <button onclick="filtrar('salgados')" class="cat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition">Salgados</button>
+        </div>
     </div>
 
     <!-- Products Grid -->
-    <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-      <!-- Cards renderizados via JS -->
+    <main class="px-4">
+        <div id="produtos-grid" class="grid grid-cols-2 gap-3">
+            <!-- Renderizado via JS -->
+        </div>
+    </main>
+
+    <!-- Modal Admin -->
+    <div id="admin-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl">
+            <div id="admin-login-view">
+                <h3 class="text-lg font-bold mb-1">Painel Administrativo</h3>
+                <p class="text-xs text-slate-400 mb-4">Insira o PIN de acesso (1943)</p>
+                <input type="password" id="pin-input" placeholder="PIN" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-center text-xl tracking-widest text-white mb-3 focus:outline-none focus:border-amber-500">
+                <div class="flex space-x-2">
+                    <button onclick="fecharAdmin()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-sm font-semibold">Cancelar</button>
+                    <button onclick="validarPin()" class="flex-1 py-2.5 rounded-xl bg-amber-500 text-slate-950 text-sm font-bold">Entrar</button>
+                </div>
+            </div>
+            <div id="admin-panel-view" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-amber-400">Gerir Produtos</h3>
+                    <button onclick="fecharAdmin()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="space-y-3 mb-4">
+                    <input type="text" id="novo-nome" placeholder="Nome do produto" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                    <input type="number" step="0.01" id="novo-preco" placeholder="Preço (€)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                    <select id="nova-categoria" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                        <option value="paes">Pães</option>
+                        <option value="doces">Doces & Bolos</option>
+                        <option value="salgados">Salgados</option>
+                    </select>
+                    <input type="text" id="novo-desc" placeholder="Descrição curta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                    <button onclick="adicionarProduto()" class="w-full py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-sm shadow-lg shadow-emerald-600/20">Adicionar Produto</button>
+                </div>
+                <hr class="border-slate-800 mb-3">
+                <button onclick="limparDados()" class="w-full py-2 rounded-xl bg-rose-500/10 text-rose-400 text-xs font-semibold border border-rose-500/20">Restaurar Produtos padrão</button>
+            </div>
+        </div>
     </div>
-  </main>
 
-  <!-- Floating Bottom Cart Bar -->
-  <div id="floating-cart-bar" class="hidden fixed bottom-4 left-4 right-4 max-w-lg mx-auto bg-purple-600 text-white p-3.5 rounded-2xl shadow-2xl shadow-purple-900/60 z-30 flex items-center justify-between gap-3 border border-purple-400/30 cursor-pointer active:scale-98 transition" onclick="openCartModal()">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">
-        <i class="fa-solid fa-basket-shopping"></i>
-      </div>
-      <div>
-        <p class="text-xs text-purple-200 font-medium"><span id="cart-item-count">0</span> itens selecionados</p>
-        <p class="text-sm font-bold" id="cart-total-price">R$ 0,00</p>
-      </div>
-    </div>
-    <button class="bg-white text-purple-700 px-4 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-md">
-      <span>Ver Carrinho</span>
-      <i class="fa-solid fa-arrow-right"></i>
-    </button>
-  </div>
+    <!-- Script Principal -->
+    <script>
+        let produtosPadrao = [
+            { id: 1, nome: "Pão Francês", preco: 0.25, categoria: "paes", descricao: "Fresquinho e crocante", imagem: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=300" },
+            { id: 2, nome: "Croissant de Manteiga", preco: 1.20, categoria: "paes", descricao: "Folhado dourado artesanal", imagem: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300" },
+            { id: 3, nome: "Bolo de Laranja", preco: 2.50, categoria: "doces", descricao: "Fofinho com cobertura caseira", imagem: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=300" },
+            { id: 4, nome: "Coxinha de Frango", preco: 1.80, categoria: "salgados", descricao: "Massa crocante recheada", imagem: "https://images.unsplash.com/photo-1541529086526-db283c563270?w=300" }
+        ];
 
-  <!-- PIN Modal (Substitui prompt) -->
-  <div id="pin-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card rounded-2xl p-6 w-full max-w-xs text-center border border-white/10 shadow-2xl">
-      <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto text-xl mb-3 border border-amber-500/30">
-        <i class="fa-solid fa-lock"></i>
-      </div>
-      <h3 class="font-bold text-lg mb-1">Modo Desenvolvedor</h3>
-      <p class="text-xs text-slate-400 mb-4">Digite o PIN de acesso (1943)</p>
-      
-      <input type="password" id="pin-input" maxlength="4" placeholder="••••" class="w-full text-center tracking-[0.5em] text-2xl font-bold bg-slate-900 border border-white/20 rounded-xl py-3 text-amber-400 mb-4 focus:outline-none focus:border-amber-400">
-      
-      <div class="grid grid-cols-2 gap-2">
-        <button onclick="closePinModal()" class="py-3 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold btn-touch">Cancelar</button>
-        <button onclick="verifyPin()" class="py-3 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold btn-touch">Acessar</button>
-      </div>
-    </div>
-  </div>
+        let carrinho = [];
+        let categoriaAtual = 'todos';
 
-  <!-- Modal Cadastro/Edição de Produto (Grandes Botões Mobile) -->
-  <div id="product-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="glass-card rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto border border-white/10 shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-        <h3 id="modal-product-title" class="font-bold text-lg text-emerald-400 flex items-center gap-2">
-          <i class="fa-solid fa-pen-to-square"></i>
-          <span>Editar Produto</span>
-        </h3>
-        <button onclick="closeProductModal()" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-full flex items-center justify-center text-lg">
-          &times;
-        </button>
-      </div>
+        function obterProdutos() {
+            let salvos = localStorage.getItem('selk_produtos');
+            if (!salvos) {
+                localStorage.setItem('selk_produtos', JSON.stringify(produtosPadrao));
+                return produtosPadrao;
+            }
+            return JSON.parse(salvos);
+        }
 
-      <form id="product-form" onsubmit="handleProductSubmit(event)" class="space-y-4">
-        <input type="hidden" id="form-prod-id">
+        function renderizarProdutos(filtro = 'todos') {
+            let prods = obterProdutos();
+            let grid = document.getElementById('produtos-grid');
+            grid.innerHTML = '';
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Nome do Produto *</label>
-          <input type="text" id="form-prod-name" required placeholder="Ex: Pão Francês Quentinho" class="w-full bg-slate-900 border border-white/15 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-        </div>
+            let filtrados = filtro === 'todos' ? prods : prods.filter(p => p.categoria === filtro);
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Preço (R$) *</label>
-            <input type="number" step="0.01" id="form-prod-price" required placeholder="0.00" class="w-full bg-slate-900 border border-white/15 rounded-xl p-3 text-sm text-emerald-400 font-bold focus:outline-none focus:border-emerald-500">
-          </div>
+            if (filtrados.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 text-center py-10 text-slate-500 text-sm">Nenhum produto encontrado.</div>`;
+                return;
+            }
 
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Categoria *</label>
-            <select id="form-prod-category" required class="w-full bg-slate-900 border border-white/15 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-              <option value="Paes">🥖 Pães</option>
-              <option value="Doces">🍰 Doces & Bolos</option>
-              <option value="Salgados">🥐 Salgados</option>
-              <option value="Bebidas">☕ Bebidas</option>
-            </select>
-          </div>
-        </div>
+            filtrados.forEach(p => {
+                grid.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-3 flex flex-col justify-between">
+                        <div>
+                            <div class="w-full h-28 rounded-xl bg-slate-800 mb-2 overflow-hidden">
+                                <img src="${p.imagem}" alt="${p.nome}" class="w-full h-full object-cover">
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-100 truncate">${p.nome}</h4>
+                            <p class="text-[11px] text-slate-400 line-clamp-1 mt-0.5">${p.descricao || ''}</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-3 pt-2 border-t border-slate-800/50">
+                            <span class="font-bold text-amber-400 text-sm">€ ${Number(p.preco).toFixed(2)}</span>
+                            <button onclick="adicionarAoCarrinho(${p.id})" class="w-8 h-8 rounded-lg bg-violet-600 text-white flex items-center justify-center active:scale-95 transition">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">URL da Imagem (Link da foto)</label>
-          <input type="url" id="form-prod-image" placeholder="https://exemplo.com/foto.jpg" class="w-full bg-slate-900 border border-white/15 rounded-xl p-3 text-xs text-slate-300 focus:outline-none focus:border-emerald-500">
-        </div>
+        function filtrar(cat) {
+            categoriaAtual = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = "cat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition";
+            });
+            event.target.className = "cat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-violet-600 text-white transition shadow-sm";
+            renderizarProdutos(cat);
+        }
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Descrição Curta</label>
-          <textarea id="form-prod-desc" rows="2" placeholder="Ingredientes ou detalhes do produto..." class="w-full bg-slate-900 border border-white/15 rounded-xl p-3 text-xs text-slate-300 focus:outline-none focus:border-emerald-500"></textarea>
-        </div>
+        function abrirAdmin() {
+            document.getElementById('admin-modal').classList.remove('hidden');
+            document.getElementById('admin-login-view').classList.remove('hidden');
+            document.getElementById('admin-panel-view').classList.add('hidden');
+            document.getElementById('pin-input').value = '';
+        }
 
-        <!-- Botão Gigante Fácil de Clicar no Celular -->
-        <button type="submit" id="save-btn" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-base rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 btn-touch mt-6">
-          <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
-          <span>SALVAR NO SUPABASE</span>
-        </button>
-      </form>
-    </div>
-  </div>
+        function fecharAdmin() {
+            document.getElementById('admin-modal').classList.add('hidden');
+        }
 
-  <!-- Modal Confirmação de Exclusão -->
-  <div id="confirm-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card rounded-2xl p-6 w-full max-w-xs text-center border border-white/10 shadow-2xl">
-      <div class="w-12 h-12 bg-rose-500/20 text-rose-400 rounded-full flex items-center justify-center mx-auto text-xl mb-3 border border-rose-500/30">
-        <i class="fa-solid fa-trash-can"></i>
-      </div>
-      <h3 class="font-bold text-base mb-1">Apagar Produto?</h3>
-      <p id="confirm-modal-text" class="text-xs text-slate-400 mb-5">Esta ação irá remover o produto da nuvem.</p>
-      
-      <div class="grid grid-cols-2 gap-2">
-        <button onclick="closeConfirmModal()" class="py-3 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold btn-touch">Cancelar</button>
-        <button id="confirm-modal-btn" class="py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold btn-touch">Excluir</button>
-      </div>
-    </div>
-  </div>
+        function validarPin() {
+            let pin = document.getElementById('pin-input').value;
+            if (pin === '1943') {
+                document.getElementById('admin-login-view').classList.add('hidden');
+                document.getElementById('admin-panel-view').classList.remove('hidden');
+            } else {
+                alert('PIN incorreto!');
+            }
+        }
 
-  <!-- Cart Modal -->
-  <div id="cart-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="glass-card rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 w-full max-w-md max-h-[85vh] overflow-y-auto border border-white/10 shadow-2xl flex flex-col">
-      <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-        <h3 class="font-bold text-lg text-purple-400 flex items-center gap-2">
-          <i class="fa-solid fa-cart-shopping"></i>
-          <span>Seu Pedido</span>
-        </h3>
-        <button onclick="closeCartModal()" class="w-8 h-8 bg-slate-800 text-slate-400 rounded-full flex items-center justify-center text-lg">&times;</button>
-      </div>
+        function adicionarProduto() {
+            let nome = document.getElementById('novo-nome').value;
+            let preco = document.getElementById('novo-preco').value;
+            let categoria = document.getElementById('nova-categoria').value;
+            let descricao = document.getElementById('novo-desc').value;
 
-      <div id="cart-items-container" class="space-y-3 mb-4 flex-1 overflow-y-auto max-h-56 pr-1">
-        <!-- Itens inseridos via JS -->
-      </div>
+            if (!nome || !preco) {
+                alert('Preencha pelo menos o nome e o preço!');
+                return;
+            }
 
-      <div class="border-t border-white/10 pt-4 space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Endereço de Entrega / Retirada *</label>
-          <input type="text" id="checkout-address" placeholder="Rua, Número, Bairro" class="w-full bg-slate-900 border border-white/15 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-500">
-        </div>
+            let prods = obterProdutos();
+            prods.push({
+                id: Date.now(),
+                nome,
+                preco: parseFloat(preco),
+                categoria,
+                descricao,
+                imagem: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300"
+            });
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Forma de Pagamento</label>
-          <select id="checkout-payment" class="w-full bg-slate-900 border border-white/15 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-500">
-            <option value="Pix">📱 Pix (Chave enviada na confirmação)</option>
-            <option value="Cartão de Crédito/Débito">💳 Cartão na Entrega</option>
-            <option value="Dinheiro">💵 Dinheiro</option>
-          </select>
-        </div>
+            localStorage.setItem('selk_produtos', JSON.stringify(prods));
+            document.getElementById('novo-nome').value = '';
+            document.getElementById('novo-preco').value = '';
+            document.getElementById('novo-desc').value = '';
+            renderizarProdutos(categoriaAtual);
+            alert('Produto adicionado com sucesso!');
+        }
 
-        <div class="flex items-center justify-between font-bold text-base pt-2">
-          <span>Total a Pagar:</span>
-          <span id="cart-modal-total" class="text-emerald-400 text-lg">R$ 0,00</span>
-        </div>
+        function limparDados() {
+            if (confirm('Deseja restaurar os produtos padrão?')) {
+                localStorage.setItem('selk_produtos', JSON.stringify(produtosPadrao));
+                renderizarProdutos('todos');
+                alert('Restaurado!');
+            }
+        }
 
-        <button onclick="sendWhatsAppOrder()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 btn-touch">
-          <i class="fa-brands fa-whatsapp text-lg"></i>
-          <span>ENVIAR PEDIDO NO WHATSAPP</span>
-        </button>
-      </div>
-    </div>
-  </div>
+        function adicionarAoCarrinho(id) {
+            let prods = obterProdutos();
+            let prod = prods.find(p => p.id === id);
+            carrinho.push(prod);
+            let badge = document.getElementById('cart-badge');
+            badge.innerText = carrinho.length;
+            badge.classList.remove('hidden');
+        }
 
-  <!-- Diagnostics & Log Modal -->
-  <div id="diagnostics-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card rounded-2xl p-5 w-full max-w-lg border border-white/10 shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
-        <h3 class="font-bold text-sm text-amber-400 flex items-center gap-2">
-          <i class="fa-solid fa-circle-nodes"></i>
-          <span>Diagnóstico do Supabase</span>
-        </h3>
-        <button onclick="closeDiagnosticsModal()" class="w-7 h-7 bg-slate-800 text-slate-400 rounded-full flex items-center justify-center text-sm">&times;</button>
-      </div>
+        function abrirCarrinho() {
+            if (carrinho.length === 0) {
+                alert('O seu carrinho está vazio!');
+                return;
+            }
+            let total = carrinho.reduce((sum, item) => sum + Number(item.preco), 0);
+            let nomes = carrinho.map(i => i.nome).join(', ');
+            alert(`Itens no carrinho: ${nomes}\nTotal: € ${total.toFixed(2)}`);
+        }
 
-      <div class="space-y-3 text-xs">
-        <div class="p-3 bg-slate-900 rounded-xl border border-white/5">
-          <p class="text-slate-400">URL do Projeto:</p>
-          <p class="font-mono text-purple-300 break-all select-all">https://sbrfgdkvpgvlufqkmxxz.supabase.co</p>
-        </div>
-
-        <div class="p-3 bg-slate-900 rounded-xl border border-white/5 flex items-center justify-between">
-          <div>
-            <p class="text-slate-400">Status Atual:</p>
-            <p id="diag-status-text" class="font-bold text-yellow-400">Testando Conexão...</p>
-          </div>
-          <button onclick="testSupabaseConnection(true)" class="px-3 py-1.5 bg-purple-600 text-white font-semibold rounded-lg">Testar Agora</button>
-        </div>
-
-        <div class="p-3 bg-slate-900 rounded-xl border border-white/5">
-          <p class="text-slate-400 mb-1">Relatório de Diagnóstico:</p>
-          <div id="diag-log-box" class="font-mono text-[11px] p-2 bg-slate-950 rounded border border-white/10 text-slate-300 max-h-40 overflow-y-auto whitespace-pre-wrap">
-            Iniciando testes...
-          </div>
-        </div>
-
-        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-200 text-[11px]">
-          <p class="font-bold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Se der erro de RLS (Row Level Security):</p>
-          <p>Rode no SQL Editor do Supabase:</p>
-          <code class="block bg-slate-950 p-1.5 rounded mt-1 text-amber-300 font-mono select-all">alter table produtos disable row level security;</code>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Configuration Constants
-    const SUPABASE_URL = 'https://sbrfgdkvpgvlufqkmxxz.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_8HjFeiILlQpA3QAYaSZD1w_xySKAMrv';
-    const WHATSAPP_NUMBER = '5564996609321';
-    const DEV_PIN = '1943';
-
-    // G
+        // Inicializar
+        renderizarProdutos();
+    </script>
+</body>
+</html>
